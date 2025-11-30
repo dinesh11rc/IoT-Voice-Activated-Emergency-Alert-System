@@ -1,0 +1,42 @@
+// sketch_mar21a.ino
+const int buzzerPin = 9;
+const int ledPin = 13;
+
+String inputString = "";
+
+void setup() {
+  pinMode(buzzerPin, OUTPUT);
+  pinMode(ledPin, OUTPUT);
+  Serial.begin(9600);
+  inputString.reserve(200);
+  digitalWrite(buzzerPin, LOW);
+  digitalWrite(ledPin, LOW);
+}
+
+void loop() {
+  if (Serial.available()) {
+    char c = (char)Serial.read();
+    if (c == '\n') {
+      inputString.trim();
+      if (inputString.length() > 0) handleCommand(inputString);
+      inputString = "";
+    } else {
+      inputString += c;
+    }
+  }
+}
+
+void handleCommand(String cmd) {
+  cmd.toLowerCase();
+  if (cmd == "alert") {
+    digitalWrite(ledPin, HIGH);
+    tone(buzzerPin, 1000); // 1kHz tone
+    Serial.println("ALERT_ON");
+  } else if (cmd == "stop") {
+    digitalWrite(ledPin, LOW);
+    noTone(buzzerPin);
+    Serial.println("ALERT_OFF");
+  } else {
+    Serial.println("UNKNOWN_CMD");
+  }
+}
